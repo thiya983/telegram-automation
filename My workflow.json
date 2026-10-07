@@ -1,0 +1,161 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -192,
+        112
+      ],
+      "id": "2135046a-fcf0-4153-bccf-848fcc478707",
+      "name": "Telegram Trigger",
+      "webhookId": "0450594c-d9a6-41a1-a9d6-a97645fe532a",
+      "credentials": {
+        "telegramApi": {
+          "id": "m6uPrpYMa4LL5CE0",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are a helpful assistantYou are Sandhu's personal AI assistant.\n\nRules:\n- Be friendly and helpful.\n- Reply naturally in Tamil, English, or Tanglish based on the user's language.\n- Keep replies short and conversational.\n- Use memory to remember useful information about the user.\n- If the user tells you their name, preferences, likes, dislikes, or other useful personal information, remember it when possible.\n- When the user asks something that you already know from memory, use that information naturally.\n- Do not make up information that you don't know."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a6443a0a-b03b-4cda-9e51-d7f1d7fb8302",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        0
+      ],
+      "id": "9fd7e548-6336-4f61-bdc6-fe7eed9ecdc9",
+      "name": "Send a text message",
+      "webhookId": "f0fa9746-2472-4d8c-b5aa-33745d523316",
+      "credentials": {
+        "telegramApi": {
+          "id": "m6uPrpYMa4LL5CE0",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.8-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        208
+      ],
+      "id": "82c70b2d-8cfa-4578-99e4-b2d6c18d1eea",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bVFwu2rNz4O7vNcY",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        208
+      ],
+      "id": "aed04cae-5985-497e-9291-8cebf5d2296a",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e243fddb-6167-46c2-a34c-dc5021aae41d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0c747477b6cff113d02315dd93d0eff4daa967a372f61804008d9950274ec329"
+  },
+  "nodeGroups": [],
+  "id": "EI9pXBtLl4WUq4Jq",
+  "tags": []
+}
